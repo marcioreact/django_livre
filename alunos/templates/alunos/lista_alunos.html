@@ -1,0 +1,48 @@
+{% extends "alunos/base.html" %}
+
+{% block content %}
+
+<h2>Lista de Alunos</h2>
+
+<table class="table table-striped">
+
+<thead>
+
+<tr>
+
+<th>Nome</th>
+<th>Email</th>
+<th>Telefone</th>
+<th>Ações</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for aluno in alunos %}
+
+<tr>
+
+<td>{{ aluno.nome }}</td>
+
+<td>{{ aluno.email }}</td>
+
+<td>{{ aluno.telefone }}</td>
+
+<td>
+
+<a class="btn btn-danger btn-sm" href="/alunos/delete/{{ aluno.id }}/">Excluir</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

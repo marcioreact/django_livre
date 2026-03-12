@@ -1,0 +1,21 @@
+{% extends "alunos/base.html" %}
+
+{% block content %}
+
+<h2>Cadastrar Aluno</h2>
+
+<div class="card p-4">
+
+<form method="post">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<button class="btn btn-success">Salvar</button>
+
+</form>
+
+</div>
+
+{% endblock %}

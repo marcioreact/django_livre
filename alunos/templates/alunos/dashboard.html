@@ -2,19 +2,52 @@
 
 {% block content %}
 
-<h1 class="mb-4">Dashboard da Academia Django Livre</h1>
+<h1 class="mb-4">Dashboard da Academia</h1>
 
 <div class="row">
 
 <div class="col-md-4">
 
-<div class="card text-bg-primary mb-3">
+<div class="card shadow text-center">
 
 <div class="card-body">
 
-<h5 class="card-title">Total de alunos</h5>
+<h5 class="card-title">Alunos cadastrados</h5>
 
-<p class="card-text fs-3">{{ total }}</p>
+<h1 class="text-primary">{{ total_alunos }}</h1>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card shadow text-center">
+
+<div class="card-body">
+
+<h5 class="card-title">Total de acessos</h5>
+
+<h1 class="text-success">{{ total_acessos }}</h1>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card shadow text-center">
+
+<div class="card-body">
+
+<h5 class="card-title">Ferramentas</h5>
+
+<a class="btn btn-primary mt-2" href="/alunos/">Ver alunos</a>
+<a class="btn btn-warning mt-2" href="/imc/">Calcular IMC</a>
 
 </div>
 
@@ -24,4 +57,7 @@
 
 </div>
 
+{% endblock %}
+
+{% block botao_voltar %}
 {% endblock %}

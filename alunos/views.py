@@ -1,19 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Aluno
 from .forms import AlunoForm
 from django.contrib.auth.decorators import login_required
+from .models import Aluno
 
 
 @login_required
 def dashboard(request):
-
-    total = Aluno.objects.count()
-
-    return render(request, "alunos/dashboard.html", {"total": total})
+    total_alunos = Aluno.objects.count()
+    return render(request, "alunos/dashboard.html", {
+        "total_alunos": total_alunos,        
+    })
 
 
 @login_required
 def lista_alunos(request):
+
 
     alunos = Aluno.objects.all()
 

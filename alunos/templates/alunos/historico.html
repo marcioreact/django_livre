@@ -1,0 +1,49 @@
+{% extends "alunos/base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">Histórico de Acessos</h2>
+
+<table class="table table-striped shadow">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Aluno</th>
+<th>Entrada</th>
+<th>Saída</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for acesso in acessos %}
+
+<tr>
+
+<td>{{ acesso.aluno.nome }}</td>
+
+<td>{{ acesso.entrada }}</td>
+
+<td>
+
+{% if acesso.saida %}
+{{ acesso.saida }}
+{% else %}
+<span class="text-success">Ainda na academia</span>
+{% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

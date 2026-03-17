@@ -1,93 +1,195 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import AlunoForm
-from django.contrib.auth.decorators import login_required
-from .models import Aluno
+from django.utils import timezone
+from .models import Aluno, Acesso, Pagamento
 
-
-@login_required
 def dashboard(request):
+
     total_alunos = Aluno.objects.count()
+
+    presentes = Acesso.objects.filter(saida__isnull=True).count()
+
     return render(request, "alunos/dashboard.html", {
-        "total_alunos": total_alunos,        
+        "total_alunos": total_alunos,
+        "presentes": presentes
     })
 
-
-@login_required
 def lista_alunos(request):
-
 
     alunos = Aluno.objects.all()
 
     return render(request, "alunos/lista_alunos.html", {"alunos": alunos})
 
-
-@login_required
 def criar_aluno(request):
-
-    form = AlunoForm(request.POST or None)
-
-    if form.is_valid():
-        form.save()
-        return redirect("lista_alunos")
-
-    return render(request, "alunos/form_aluno.html", {"form": form})
-
-
-@login_required
-def deletar_aluno(request, id):
-
-    aluno = get_object_or_404(Aluno, id=id)
-    aluno.delete()
-
-    return redirect("lista_alunos")
-
-
-@login_required
-def calcular_imc(request):
-
-    imc = None
-    classificacao = None
-    exercicio = None
 
     if request.method == "POST":
 
-        try:
+        nome = request.POST.get("nome")
+        email = request.POST.get("email")
+        telefone = request.POST.get("telefone")
 
-            peso = float(request.POST.get("peso"))
-            altura = float(request.POST.get("altura"))
+        Aluno.objects.create(
+            nome=nome,
+            email=email,
+            telefone=telefone
+        )
 
-            imc = peso / (altura ** 2)
-            imc = round(imc, 2)
+        return redirect("lista_alunos")
 
-            if imc < 18.5:
-                classificacao = "Abaixo do peso"
-                exercicio = "Treinos de força e musculação para ganho de massa."
+    return render(request, "alunos/form_aluno.html")
 
-            elif 18.5 <= imc < 25:
-                classificacao = "Peso normal"
-                exercicio = "Treino equilibrado com musculação e cardio moderado."
+def registrar_entrada(request, id):
 
-            elif 25 <= imc < 30:
-                classificacao = "Sobrepeso"
-                exercicio = "Cardio regular (corrida, bicicleta) e treino funcional."
+    aluno = get_object_or_404(Aluno, id=id)
 
-            elif 30 <= imc < 35:
-                classificacao = "Obesidade Grau I"
-                exercicio = "Caminhada, bicicleta e musculação leve."
+    acesso_aberto = Acesso.objects.filter(
+        aluno=aluno,
+        saida__isnull=True
+    ).exists()
 
-            elif 35 <= imc < 40:
-                classificacao = "Obesidade Grau II"
-                exercicio = "Exercícios de baixo impacto com acompanhamento."
+    if not acesso_aberto:
 
-            else:
-                classificacao = "Obesidade Grau III"
-                exercicio = "Atividade física supervisionada e exercícios leves."
+        Acesso.objects.create(
+            aluno=aluno,
+            entrada=timezone.now()
+        )
 
-        except:
-            classificacao = "Erro nos dados informados"
+    return redirect("historico")
 
-    return render(request, "alunos/imc.html", {
-        "imc": imc,
-        "classificacao": classificacao,
-        "exercicio": exercicio
+def registrar_saida(request, id):
+
+    aluno = get_object_or_404(Aluno, id=id)
+
+    acesso = Acesso.objects.filter(
+        aluno=aluno,
+        saida__isnull=True
+    ).last()
+
+    if acesso:
+
+        acesso.saida = timezone.now()
+        acesso.save()
+
+    return redirect("historico")
+
+def historico_acessos(request):
+
+    acessos = Acesso.objects.select_related("aluno").order_by("-entrada")
+
+    return render(request, "alunos/historico.html", {
+        "acessos": acessos
     })
+
+def calcular_imc(request, id):
+
+    aluno = get_object_or_404(Aluno, id=id)
+
+    if request.method == "POST":
+
+        peso = float(request.POST.get("peso"))
+        altura = float(request.POST.get("altura"))
+
+        imc = peso / (altura ** 2)
+
+        if imc < 18.5:
+            classificacao = "Abaixo do peso"
+            exercicio = "Musculação leve"
+
+        elif imc < 25:
+            classificacao = "Peso normal"
+            exercicio = "Treino completo"
+
+        elif imc < 30:
+            classificacao = "Sobrepeso"
+            exercicio = "Cardio e musculação"
+
+        else:
+            classificacao = "Obesidade"
+            exercicio = "Caminhada e bicicleta"
+
+        return render(request, "alunos/imc.html", {
+            "aluno": aluno,
+            "imc": round(imc, 2),
+            "classificacao": classificacao,
+            "exercicio": exercicio
+        })
+
+    return render(request, "alunos/imc.html", {"aluno": aluno})
+
+def imc_dashboard(request):
+    aluno = None
+    
+    if request.method == "POST":
+
+        peso = float(request.POST.get("peso"))
+        altura = float(request.POST.get("altura"))
+
+        imc = peso / (altura ** 2)
+
+        if imc < 18.5:
+            classificacao = "Abaixo do peso"
+            exercicio = "Musculação leve"
+
+        elif imc < 25:
+            classificacao = "Peso normal"
+            exercicio = "Treino completo"
+
+        elif imc < 30:
+            classificacao = "Sobrepeso"
+            exercicio = "Cardio e musculação"
+
+        else:
+            classificacao = "Obesidade"
+            exercicio = "Caminhada e bicicleta"
+
+        return render(request, "alunos/imc.html", {
+            "aluno": aluno,
+            "imc": round(imc, 2),
+            "classificacao": classificacao,
+            "exercicio": exercicio
+        })
+
+    return render(request, "alunos/imc.html")
+
+def pagamentos(request):
+
+    alunos = Aluno.objects.all()
+
+    status_alunos = []
+
+    for aluno in alunos:
+
+        ultimo_pagamento = Pagamento.objects.filter(
+            aluno=aluno
+        ).order_by("-data_pagamento").first()
+
+        if ultimo_pagamento and ultimo_pagamento.ativo():
+
+            status = "ativo"
+
+        else:
+
+            status = "desativado"
+
+        status_alunos.append({
+            "aluno": aluno,
+            "status": status
+        })
+
+    return render(request, "alunos/pagamentos.html", {
+        "status_alunos": status_alunos
+    })
+
+def pagar_mensalidade(request, id):
+
+    aluno = get_object_or_404(Aluno, id=id)
+
+    Pagamento.objects.create(
+        aluno=aluno,
+        valor=100,
+        ativo=True
+    )
+
+    return redirect("pagamentos")
+
+
+

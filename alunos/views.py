@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Aluno, Acesso, Pagamento
+from django.contrib import messages
 
 def dashboard(request):
 
@@ -180,16 +181,28 @@ def pagamentos(request):
     })
 
 def pagar_mensalidade(request, id):
-
     aluno = get_object_or_404(Aluno, id=id)
 
+    
     Pagamento.objects.create(
         aluno=aluno,
-        valor=100,
-        ativo=True
+        valor=100.00,
+        data_pagamento=timezone.now()
     )
 
+    messages.success(request, f"Pagamento de {aluno.nome} registrado!")
     return redirect("pagamentos")
 
 
+def deletar_aluno(request, id):
+
+    aluno = get_object_or_404(Aluno, id=id)
+
+    if request.method == "POST":
+        aluno.delete()
+        return redirect("lista_alunos")
+
+    return render(request, "alunos/confirmar_delete.html", {
+        "aluno": aluno
+    })
 

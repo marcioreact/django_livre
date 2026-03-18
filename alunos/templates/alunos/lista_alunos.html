@@ -19,6 +19,7 @@
                         <th>Telefone</th>
                         <th class="text-center">Ações de Acesso</th>
                         <th class="text-end pe-3">Saúde</th>
+                        <th class="text-end pe-3"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,6 +41,10 @@
                         <td class="text-end pe-3">
                             <a class="btn btn-outline-info btn-sm" href="{% url 'imc' aluno.id %}">
                                 <i class="bi bi-heart-pulse"></i> IMC
+                            </a>
+                            <td class="text-end pe-3">
+                            <a class="btn btn-danger btn-sm" href="{% url 'deletar_aluno' aluno.id %}">
+                                <i class="bi bi-heart-pulse"></i> Excluir
                             </a>
                         </td>
                     </tr>
